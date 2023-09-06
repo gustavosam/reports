@@ -1,0 +1,172 @@
+openapi: 3.0.0
+info:
+  title: Reports
+  description:
+    This application allows you to obtain Reports
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Reports
+  url: http://swagger.io
+servers:
+  - url: https://localhost:8085
+tags:
+  - name: reports
+    description: Everything about your reports
+paths:
+
+
+  /report/card/{cardNumber}/client/{document}/date/{date}:
+    get:
+      tags:
+        - reports
+      summary: It allows you to obtain information about your credit card.
+      operationId: getReportCard
+      parameters:
+        - name: cardNumber
+          in: path
+          description: Card Number
+          required: true
+          schema:
+            type: string
+        - name: document
+          in: path
+          description: Client Id
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: path
+          description: Date
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operation OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportCard'
+
+  /report/account/{accountNumber}/client/{document}/date/{date}:
+    get:
+      tags:
+        - reports
+      summary: It allows you to obtain information about your accounts.
+      operationId: getReportAccount
+      parameters:
+        - name: accountNumber
+          in: path
+          description: Account Number
+          required: true
+          schema:
+            type: string
+        - name: document
+          in: path
+          description: Client Id
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: path
+          description: Date
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operation OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportAccount'
+
+  /report/commission/date/{date}:
+    get:
+      tags:
+        - reports
+      summary: It allows you to obtain information about the commission.
+      operationId: getCommission
+      parameters:
+        - name: date
+          in: path
+          description: date
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operation OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Movements'
+
+
+
+components:
+  schemas:
+    ReportCard:
+      type: object
+      properties:
+        dailyAmounts:
+          items:
+            $ref: '#/components/schemas/DailyAmounts'
+        averageAmount:
+          type: number
+          format: double
+        client:
+          type: string
+        cardNumber:
+          type: string
+    DailyAmounts:
+      type: object
+      properties:
+        date:
+          type: string
+        amount:
+          type: number
+          format: double
+    ReportAccount:
+      type: object
+      properties:
+        dailyAmounts:
+          items:
+            $ref: '#/components/schemas/DailyAmounts'
+        averageAmount:
+          type: number
+          format: double
+        client:
+          type: string
+        accountNumber:
+          type: string
+    Movements:
+      type: object
+      properties:
+        movementNumber:
+          type: string
+          description: Movement number
+        movementType:
+          type: string
+          description: Type of Movement
+        clientDocument:
+          type: string
+          description: Customer Document
+        accountType:
+          type: string
+          description: Type of account
+        accountNumber:
+          type: string
+          description: Account Number
+        amount:
+          type: number
+          format: double
+        commission:
+          type: number
+          format: double
+        movementDate:
+          type: string
+          format: date
+            
+      

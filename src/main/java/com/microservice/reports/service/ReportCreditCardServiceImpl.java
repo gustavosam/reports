@@ -5,7 +5,6 @@ import com.microservice.reports.model.DailyAmounts;
 import com.microservice.reports.model.ReportCard;
 import com.microservice.reports.repository.ReportCardRepository;
 import com.microservice.reports.service.mapper.Mapper;
-
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;

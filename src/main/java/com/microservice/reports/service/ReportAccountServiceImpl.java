@@ -5,7 +5,6 @@ import com.microservice.reports.model.DailyAmounts;
 import com.microservice.reports.model.ReportAccount;
 import com.microservice.reports.repository.ReportAccountRepository;
 import com.microservice.reports.service.mapper.Mapper;
-
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;

@@ -31,7 +31,7 @@ public class CreditCardSchedule {
    * Dicha información será guardada todos los días en una colección que almacenará
    * el número de tarjeta, la fecha del día, el saldo disponible de la tarjeta en ese día.
    * */
-  @Scheduled(fixedRate = 60000) // Ejecuta cada 5 min
+  @Scheduled(fixedRate = 86400000)
   public void executeAccounts() {
 
     LocalDate localDate = LocalDate.now();

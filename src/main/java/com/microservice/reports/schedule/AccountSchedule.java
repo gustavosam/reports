@@ -34,7 +34,7 @@ public class AccountSchedule {
    * y los guardará en una nueva colección para luego consultar los saldos
    * diarios de la cuenta y calcular su saldo promedio.
    * */
-  @Scheduled(fixedRate = 60000) // Ejecuta cada 5 min
+  @Scheduled(fixedRate = 86400000)
   public void executeAccounts() {
 
     LocalDate localDate = LocalDate.now();

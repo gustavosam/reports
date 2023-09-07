@@ -1,7 +1,7 @@
 package com.microservice.reports.service;
 
 import com.microservice.reports.model.Movements;
-import com.microservice.reports.service.mapper.Mappers;
+import com.microservice.reports.service.mapper.Mapper;
 import com.microservice.reports.service.movements.MovementsService;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,6 +19,9 @@ public class ReportMovementsServiceImpl implements ReportMovementsService {
   @Autowired
   private MovementsService movementsService;
 
+  @Autowired
+  private Mapper mapper;
+
   DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
@@ -33,7 +36,7 @@ public class ReportMovementsServiceImpl implements ReportMovementsService {
             .stream()
             .filter(Objects::nonNull)
             .filter(movement -> (movement.getMovementDate()).format(formatter).startsWith(date))
-            .map(Mappers::mapMovementDocToMovements)
+            .map(movementsDocuments -> mapper.mapMovementDocToMovements(movementsDocuments))
             .collect(Collectors.toList());
   }
 }

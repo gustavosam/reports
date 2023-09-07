@@ -4,7 +4,8 @@ import com.microservice.reports.document.ReportCardDocument;
 import com.microservice.reports.model.DailyAmounts;
 import com.microservice.reports.model.ReportCard;
 import com.microservice.reports.repository.ReportCardRepository;
-import com.microservice.reports.service.mapper.Mappers;
+import com.microservice.reports.service.mapper.Mapper;
+
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
@@ -20,6 +21,9 @@ public class ReportCreditCardServiceImpl implements ReportCreditCardService {
 
   @Autowired
   private ReportCardRepository reportCardRepository;
+
+  @Autowired
+  private Mapper mapper;
 
 
   /**
@@ -37,7 +41,7 @@ public class ReportCreditCardServiceImpl implements ReportCreditCardService {
 
     List<DailyAmounts> dailyAmounts = cardDocumentList
             .stream()
-            .map(Mappers::mapRecordCardDoctoDailyAmounts)
+            .map(card -> mapper.mapRecordCardDoctoDailyAmounts(card))
             .collect(Collectors.toList());
 
     OptionalDouble average = cardDocumentList

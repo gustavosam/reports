@@ -4,7 +4,8 @@ import com.microservice.reports.document.ReportAccountDocument;
 import com.microservice.reports.model.DailyAmounts;
 import com.microservice.reports.model.ReportAccount;
 import com.microservice.reports.repository.ReportAccountRepository;
-import com.microservice.reports.service.mapper.Mappers;
+import com.microservice.reports.service.mapper.Mapper;
+
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
@@ -21,6 +22,9 @@ public class ReportAccountServiceImpl implements ReportAccountService {
   @Autowired
   private ReportAccountRepository reportAccountRepository;
 
+  @Autowired
+  private Mapper mapper;
+
   /**
    * El método getReportAccount, devolverá una lista con los saldos de una cuenta de
    * un cliente en un año y mes específicos.
@@ -35,7 +39,7 @@ public class ReportAccountServiceImpl implements ReportAccountService {
 
     List<DailyAmounts> dailyAmounts = cardDocumentList
             .stream()
-            .map(Mappers::mapRecordAccountDoctoDailyAmounts)
+            .map(account -> mapper.mapRecordAccountDoctoDailyAmounts(account))
             .collect(Collectors.toList());
 
     OptionalDouble average = cardDocumentList

@@ -33,7 +33,7 @@ public class CreditCardSchedule {
    * Dicha información será guardada todos los días en una colección que almacenará
    * el número de tarjeta, la fecha del día, el saldo disponible de la tarjeta en ese día.
    * */
-  @Scheduled(fixedRate = 180000)
+  @Scheduled(fixedRate = 600000)
   public Mono<Void> executeAccounts() {
 
     LocalDate localDate = LocalDate.now();

@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Esta clase contiene un método que se ejecutará cada 24 horas.
@@ -31,8 +33,8 @@ public class CreditCardSchedule {
    * Dicha información será guardada todos los días en una colección que almacenará
    * el número de tarjeta, la fecha del día, el saldo disponible de la tarjeta en ese día.
    * */
-  @Scheduled(fixedRate = 86400000)
-  public void executeAccounts() {
+  @Scheduled(fixedRate = 180000)
+  public Mono<Void> executeAccounts() {
 
     LocalDate localDate = LocalDate.now();
 
@@ -40,22 +42,23 @@ public class CreditCardSchedule {
 
     String dateFormat = localDate.format(formatter);
 
-    List<CreditCardDocument> listCards = creditCardService.getAllCards();
+    Flux<CreditCardDocument> listCards = creditCardService.getAllCards();
 
-    List<ReportCardDocument> listReportCardDocuments = listCards.stream().filter(Objects::nonNull)
+    listCards
+            .filter(Objects::nonNull)
             .map(cards -> {
-
               ReportCardDocument reportCardDocument = new ReportCardDocument();
               reportCardDocument.setCardNumber(cards.getCardNumber());
               reportCardDocument.setCardAmount(cards.getAvailable());
               reportCardDocument.setClientDocument(cards.getClientDocument());
               reportCardDocument.setDate(dateFormat);
-
               return reportCardDocument;
+            })
+            .flatMap(reportCardRepository::save)
+            .then()
+            .subscribe();
 
-            }).collect(Collectors.toList());
-
-    reportCardRepository.saveAll(listReportCardDocuments);
+    return Mono.empty();
 
   }
 }

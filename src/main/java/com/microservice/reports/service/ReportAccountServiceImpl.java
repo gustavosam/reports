@@ -6,10 +6,11 @@ import com.microservice.reports.model.ReportAccount;
 import com.microservice.reports.repository.ReportAccountRepository;
 import com.microservice.reports.service.mapper.Mapper;
 import java.util.List;
-import java.util.OptionalDouble;
-import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Esta clase implementa la interfaz ReportAccountService.
@@ -32,27 +33,38 @@ public class ReportAccountServiceImpl implements ReportAccountService {
    * Se guardará toda esa información y se le mostrará al cliente como reporte.
    * */
   @Override
-  public ReportAccount getReportAccount(String accountNumber, String document, String date) {
-    List<ReportAccountDocument> cardDocumentList = reportAccountRepository
+  public Mono<ReportAccount> getReportAccount(String accountNumber, String document, String date) {
+
+
+    Flux<ReportAccountDocument> accountDocumentFlux = reportAccountRepository
             .findByAccountNumberAndClientDocumentAndDateStartingWith(accountNumber, document, date);
 
-    List<DailyAmounts> dailyAmounts = cardDocumentList
-            .stream()
-            .map(account -> mapper.mapRecordAccountDoctoDailyAmounts(account))
-            .collect(Collectors.toList());
+    Flux<DailyAmounts> dailyAmounts = accountDocumentFlux
+            .map(account -> mapper.mapRecordAccountDoctoDailyAmounts(account));
 
-    OptionalDouble average = cardDocumentList
-            .stream()
-            .mapToDouble(ReportAccountDocument::getAccountAmount)
-            .average();
+    Mono<Double> average = accountDocumentFlux
+            .map(ReportAccountDocument::getAccountAmount)
+            .reduce(Double::sum)
+            .flatMap(totalAverage -> accountDocumentFlux.count().map(count -> totalAverage / count));
 
-    ReportAccount reportAccount = new ReportAccount();
+    Mono<List<DailyAmounts>> monoListDailyAmounts = dailyAmounts.collectList();
 
-    reportAccount.setAccountNumber(accountNumber);
-    reportAccount.setClient(document);
-    reportAccount.setAverageAmount(average.getAsDouble());
-    reportAccount.setDailyAmounts(dailyAmounts);
+    return monoListDailyAmounts.zipWith(average).map(tuple ->{
 
-    return reportAccount;
+      List<DailyAmounts> dailyAmountsList = tuple.getT1();
+      Double averageAmount = tuple.getT2();
+
+      ReportAccount reportAccount = new ReportAccount();
+
+      reportAccount.setAccountNumber(accountNumber);
+      reportAccount.setClient(document);
+      reportAccount.setAverageAmount(averageAmount);
+      reportAccount.setDailyAmounts(dailyAmountsList);
+
+      return reportAccount;
+
+    });
+
+
   }
 }

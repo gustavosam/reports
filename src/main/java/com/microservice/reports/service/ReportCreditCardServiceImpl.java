@@ -1,7 +1,9 @@
 package com.microservice.reports.service;
 
+import com.microservice.reports.document.ReportAccountDocument;
 import com.microservice.reports.document.ReportCardDocument;
 import com.microservice.reports.model.DailyAmounts;
+import com.microservice.reports.model.ReportAccount;
 import com.microservice.reports.model.ReportCard;
 import com.microservice.reports.repository.ReportCardRepository;
 import com.microservice.reports.service.mapper.Mapper;
@@ -10,6 +12,8 @@ import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Esta clase implementa la interfaz ReportCreditCardService.
@@ -31,29 +35,38 @@ public class ReportCreditCardServiceImpl implements ReportCreditCardService {
    * Se obtendrá una lista de todos los saldos de la tarjeta del cliente en un mes específico.
    * Se calculará el saldo promedio de la tarjeta del cliente durante la fecha específica.
    * Se muestra todo el reporte al cliente.
-   * */
+   */
   @Override
-  public ReportCard getReportCard(String cardNumber, String document, String date) {
+  public Mono<ReportCard> getReportCard(String cardNumber, String document, String date) {
 
-    List<ReportCardDocument> cardDocumentList = reportCardRepository
+    Flux<ReportCardDocument> cardDocumentFlux = reportCardRepository
             .findByCardNumberAndClientDocumentAndDateStartingWith(cardNumber, document, date);
 
-    List<DailyAmounts> dailyAmounts = cardDocumentList
-            .stream()
-            .map(card -> mapper.mapRecordCardDoctoDailyAmounts(card))
-            .collect(Collectors.toList());
+    Flux<DailyAmounts> dailyAmounts = cardDocumentFlux
+            .map(card -> mapper.mapRecordCardDoctoDailyAmounts(card));
 
-    OptionalDouble average = cardDocumentList
-            .stream()
-            .mapToDouble(ReportCardDocument::getCardAmount).average();
+    Mono<Double> average = cardDocumentFlux
+            .map(ReportCardDocument::getCardAmount)
+            .reduce(Double::sum)
+            .flatMap(totalAverage -> cardDocumentFlux.count().map(count -> totalAverage / count));
 
-    ReportCard reportCard = new ReportCard();
+    Mono<List<DailyAmounts>> monoListDailyAmount = dailyAmounts.collectList();
 
-    reportCard.setCardNumber(cardNumber);
-    reportCard.setClient(document);
-    reportCard.setAverageAmount(average.getAsDouble());
-    reportCard.setDailyAmounts(dailyAmounts);
 
-    return reportCard;
+    return monoListDailyAmount.zipWith(average).map(tuple -> {
+      List<DailyAmounts> dailyAmountsList = tuple.getT1();
+      Double averageAmount = tuple.getT2();
+
+      ReportCard reportCard = new ReportCard();
+      reportCard.setCardNumber(cardNumber);
+      reportCard.setClient(document);
+      reportCard.setAverageAmount(averageAmount);
+      reportCard.setDailyAmounts(dailyAmountsList);
+
+      return reportCard;
+    });
+
+
+
   }
 }

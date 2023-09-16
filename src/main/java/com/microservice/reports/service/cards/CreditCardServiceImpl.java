@@ -2,9 +2,9 @@ package com.microservice.reports.service.cards;
 
 import com.microservice.reports.document.cards.CreditCardDocument;
 import com.microservice.reports.repository.cards.CreditCardRepository;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 /**
  * Esta clase implementa la interfaz CreditCardService
@@ -18,7 +18,7 @@ public class CreditCardServiceImpl implements CreditCardService {
   private CreditCardRepository creditCardRepository;
 
   @Override
-  public List<CreditCardDocument> getAllCards() {
+  public Flux<CreditCardDocument> getAllCards() {
     return creditCardRepository.findAll();
   }
 }

@@ -2,9 +2,9 @@ package com.microservice.reports.service.account;
 
 import com.microservice.reports.document.accounts.AccountsDocuments;
 import com.microservice.reports.repository.accounts.AccountRepository;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 /**
  * Esta clase implementa la interfaz con el método para obtener
@@ -18,7 +18,7 @@ public class AccountServiceImpl implements AccountService {
   private AccountRepository accountRepository;
 
   @Override
-  public List<AccountsDocuments> getAllAccounts() {
+  public Flux<AccountsDocuments> getAllAccounts() {
     return accountRepository.findAll();
   }
 }

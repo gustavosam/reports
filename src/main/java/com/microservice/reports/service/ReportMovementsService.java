@@ -1,6 +1,8 @@
 package com.microservice.reports.service;
 
 import com.microservice.reports.model.Movements;
+import reactor.core.publisher.Flux;
+
 import java.util.List;
 
 /**
@@ -8,5 +10,5 @@ import java.util.List;
  * */
 public interface ReportMovementsService {
 
-  List<Movements> getAllMovements(String date);
+  Flux<Movements> getAllMovements(String date);
 }

@@ -4,11 +4,11 @@ import com.microservice.reports.model.Movements;
 import com.microservice.reports.service.mapper.Mapper;
 import com.microservice.reports.service.movements.MovementsService;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 /**
  * Esta clase implementa a los métodos de la interfaz ReportMovementsService.
@@ -28,15 +28,13 @@ public class ReportMovementsServiceImpl implements ReportMovementsService {
   /**
    * El método getAllMovements, mostrará todos los movimientos que contienen comisión y que
    * sean de una fecha en específico.
-   * */
+   */
   @Override
-  public List<Movements> getAllMovements(String date) {
+  public Flux<Movements> getAllMovements(String date) {
 
     return movementsService.getMovements()
-            .stream()
             .filter(Objects::nonNull)
             .filter(movement -> (movement.getMovementDate()).format(formatter).startsWith(date))
-            .map(movementsDocuments -> mapper.mapMovementDocToMovements(movementsDocuments))
-            .collect(Collectors.toList());
+            .map(movementsDocuments -> mapper.mapMovementDocToMovements(movementsDocuments));
   }
 }

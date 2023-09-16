@@ -1,6 +1,8 @@
 package com.microservice.reports.service.cards;
 
 import com.microservice.reports.document.cards.CreditCardDocument;
+import reactor.core.publisher.Flux;
+
 import java.util.List;
 
 /**
@@ -8,5 +10,5 @@ import java.util.List;
  * */
 public interface CreditCardService {
 
-  List<CreditCardDocument> getAllCards();
+  Flux<CreditCardDocument> getAllCards();
 }

@@ -7,10 +7,12 @@ import com.microservice.reports.model.ReportCard;
 import com.microservice.reports.service.ReportAccountService;
 import com.microservice.reports.service.ReportCreditCardService;
 import com.microservice.reports.service.ReportMovementsService;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Esta clase implementa los métodos generados por Open Api.
@@ -28,25 +30,29 @@ public class ReportsDelegateImpl implements ReportApiDelegate {
   private ReportMovementsService reportMovementsService;
 
   @Override
-  public ResponseEntity<ReportCard> getReportCard(String cardNumber,
-                                                  String document,
-                                                  String date) {
-
-
-    return ResponseEntity.ok(reportCreditCardService.getReportCard(cardNumber, document, date));
-  }
-
-  @Override
-  public ResponseEntity<ReportAccount> getReportAccount(String accountNumber,
+  public Mono<ResponseEntity<ReportCard>> getReportCard(String cardNumber,
                                                         String document,
-                                                        String date) {
+                                                        String date,
+                                                        ServerWebExchange exchange) {
 
-    return ResponseEntity.ok(reportAccountService.getReportAccount(accountNumber, document, date));
+    return reportCreditCardService.getReportCard(cardNumber, document, date)
+            .map(ResponseEntity::ok);
   }
 
   @Override
-  public ResponseEntity<List<Movements>> getCommission(String date) {
+  public Mono<ResponseEntity<ReportAccount>> getReportAccount(String accountNumber,
+                                                              String document,
+                                                              String date,
+                                                              ServerWebExchange exchange) {
 
-    return ResponseEntity.ok(reportMovementsService.getAllMovements(date));
+    return reportAccountService.getReportAccount(accountNumber, document, date)
+            .map(ResponseEntity::ok);
+  }
+
+  @Override
+  public Mono<ResponseEntity<Flux<Movements>>> getCommission(String date,
+                                                             ServerWebExchange exchange) {
+
+    return Mono.just(ResponseEntity.ok(reportMovementsService.getAllMovements(date)));
   }
 }

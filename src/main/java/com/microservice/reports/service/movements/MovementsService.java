@@ -1,6 +1,8 @@
 package com.microservice.reports.service.movements;
 
 import com.microservice.reports.document.movements.MovementsDocuments;
+import reactor.core.publisher.Flux;
+
 import java.util.List;
 
 /**
@@ -8,5 +10,5 @@ import java.util.List;
  * */
 public interface MovementsService {
 
-  List<MovementsDocuments> getMovements();
+  Flux<MovementsDocuments> getMovements();
 }

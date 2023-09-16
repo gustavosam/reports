@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Esta clase que hará es obtener los saldos diarios de todas las cuentas
@@ -34,8 +36,8 @@ public class AccountSchedule {
    * y los guardará en una nueva colección para luego consultar los saldos
    * diarios de la cuenta y calcular su saldo promedio.
    * */
-  @Scheduled(fixedRate = 86400000)
-  public void executeAccounts() {
+  @Scheduled(fixedRate = 180000)
+  public Mono<Void> executeAccounts() {
 
     LocalDate localDate = LocalDate.now();
 
@@ -43,23 +45,23 @@ public class AccountSchedule {
 
     String dateFormat = localDate.format(formatter);
 
-    List<AccountsDocuments> listAccounts = accountService.getAllAccounts();
+    Flux<AccountsDocuments> accountsFlux = accountService.getAllAccounts();
 
-    List<ReportAccountDocument> listReportCardDocuments = listAccounts
-            .stream()
+    Flux<ReportAccountDocument> reportAccountFlux = accountsFlux
             .filter(Objects::nonNull)
-            .map(account -> {
+            .map(accountDoc -> {
               ReportAccountDocument reportAccount = new ReportAccountDocument();
-              reportAccount.setAccountNumber(account.getAccountNumber());
-              reportAccount.setAccountAmount(account.getAccountAmount());
-              reportAccount.setClientDocument(account.getClientDocument());
+              reportAccount.setAccountNumber(accountDoc.getAccountNumber());
+              reportAccount.setAccountAmount(accountDoc.getAccountAmount());
+              reportAccount.setClientDocument(accountDoc.getClientDocument());
               reportAccount.setDate(dateFormat);
-
               return reportAccount;
+            });
 
-            }).collect(Collectors.toList());
+    Flux<ReportAccountDocument> savedAccountsFlux = reportAccountRepository.saveAll(reportAccountFlux);
 
-    reportAccountRepository.saveAll(listReportCardDocuments);
+    savedAccountsFlux.then().subscribe();
 
+    return Mono.empty();
   }
 }

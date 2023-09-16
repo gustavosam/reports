@@ -1,6 +1,8 @@
 package com.microservice.reports.service.account;
 
 import com.microservice.reports.document.accounts.AccountsDocuments;
+import reactor.core.publisher.Flux;
+
 import java.util.List;
 
 /**
@@ -8,5 +10,5 @@ import java.util.List;
  * */
 public interface AccountService {
 
-  List<AccountsDocuments> getAllAccounts();
+  Flux<AccountsDocuments> getAllAccounts();
 }

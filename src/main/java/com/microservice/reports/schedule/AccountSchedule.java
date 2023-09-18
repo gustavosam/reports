@@ -36,7 +36,7 @@ public class AccountSchedule {
    * y los guardará en una nueva colección para luego consultar los saldos
    * diarios de la cuenta y calcular su saldo promedio.
    * */
-  @Scheduled(fixedRate = 600000)
+  @Scheduled(fixedRate = 86400000)
   public Mono<Void> executeAccounts() {
 
     LocalDate localDate = LocalDate.now();
